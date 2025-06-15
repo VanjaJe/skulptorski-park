@@ -264,7 +264,7 @@ int main(void)
             if (perspective) 
                 camPosFront = glm::vec3(cameraFront.x + cameraPos.x, cameraFront.y + cameraPos.y, cameraPos.z + cameraFront.z);
             else
-                camPosFront = glm::vec3(cameraFront.x + cameraPos.x, cameraFront.y + cameraPos.y, cameraPos.z + cameraFront.z);
+                camPosFront = glm::vec3(cameraFront.x + cameraPos.x, cameraFront.y, cameraPos.z + cameraFront.z);
 
             glm::mat4 view = glm::lookAt(cameraPos, camPosFront, cameraUp);
             glUniformMatrix4fv(uV, 1, GL_FALSE, glm::value_ptr(view));
