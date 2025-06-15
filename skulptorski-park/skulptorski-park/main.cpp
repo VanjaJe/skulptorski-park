@@ -217,6 +217,8 @@ int main(void)
 
     const double target_time = 1.0 / 60.0;
     double last_frame_time = glfwGetTime();
+    glfwSetKeyCallback(window, key_space_callback);
+
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -258,7 +260,6 @@ int main(void)
             glm::mat4 view = glm::lookAt(cameraPos, camPosFront, cameraUp);
             glUniformMatrix4fv(uV, 1, GL_FALSE, glm::value_ptr(view));
 
-            glfwSetKeyCallback(window, key_space_callback);
             if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) { perspective = true; glUniformMatrix4fv(uP, 1, GL_FALSE, glm::value_ptr(projP)); }
             if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
                 perspective = false; glUniformMatrix4fv(uP, 1, GL_FALSE, glm::value_ptr(projO)); 
@@ -304,11 +305,11 @@ int main(void)
             glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, wHeight - 50.0f, 0.0f));
             glm::mat4 ortho = glm::ortho(0.0f, (float)wWidth, 0.0f, (float)wHeight);
 
-            glm::mat4 MVP = ortho * model;
+            glm::mat4 mp = ortho * model;
 
 
             glDisable(GL_DEPTH_TEST);
-            writeName(nameVAO, nameVBO, nameTexture, nameShader, MVP);
+            writeName(nameVAO, nameVBO, nameTexture, nameShader, mp);
             glEnable(GL_DEPTH_TEST);
             last_frame_time = current_frame_time;
 
