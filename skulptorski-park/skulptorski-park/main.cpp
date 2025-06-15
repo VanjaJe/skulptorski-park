@@ -22,7 +22,7 @@ void writeName(unsigned int nameVAO, unsigned int nameVBO, unsigned int nameText
 void key_space_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 float cameraX = 0.0f, cameraZ = 5.0f, angle = 0.0f;
-bool perspective = false;
+bool perspective = true;
 bool rotateFigures = true;
 const unsigned int SCR_W = 500, SCR_H = 500;
 
@@ -41,7 +41,7 @@ int main(void)
     GLFWwindow* window;
     unsigned int wWidth = 1300;
     unsigned int wHeight = 850;
-    const char wTitle[] = "[Generic Title]";
+    const char wTitle[] = "Skulptorski park";
     window = glfwCreateWindow(wWidth, wHeight, wTitle, NULL, NULL);
 
     if (window == NULL)
@@ -208,35 +208,24 @@ int main(void)
     glm::mat4 model = glm::mat4(1.0f);
     glUniformMatrix4fv(uM, 1, GL_FALSE, glm::value_ptr(model)); //(Adresa matrice, broj matrica koje saljemo, da li treba da se transponuju, pokazivac do matrica)
 
-    // Camera (view) matrix
-    //glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    //glm::mat4 view = glm::lookAt(
-    //    glm::vec3(0.0f, 0.0f, 10.0f),  // Kamera ide dalje od objekata
-    //    glm::vec3(0.0f, 0.0f, 0.0f),  // Gledamo u centar scene
-    //    glm::vec3(0.0f, 2.0f, 0.0f)   // Up vektor
-    //);
-    //glUniformMatrix4fv(uV, 1, GL_FALSE, glm::value_ptr(view));
-
     // Projections
     glm::mat4 projP = glm::perspective(glm::radians(90.0f), (float)wWidth / wHeight, 0.1f, 100.0f);
-    glm::mat4 projO = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, -10.0f, 150.0f);
+    glm::mat4 projO = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, -10.0f, 100.0f);
     glUniformMatrix4fv(uP, 1, GL_FALSE, glm::value_ptr(projP));
 
     glClearColor(0.0, 0.5, 0.5, 1.0);
     glEnable(GL_DEPTH_TEST);
     glCullFace(GL_BACK);
 
-    glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 5.0f);
+    glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 3.0f);
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
     float yaw = -90.0f;
     float rotSpeed = 0.5f;
-    const float cameraSpeed = 0.5f;
+    const float cameraSpeed = 0.05f;
 
     const double target_time = 1.0 / 60.0;
     double last_frame_time = glfwGetTime();
-
-    float camPitch = glm::radians(-30.0f);
 
     while (!glfwWindowShouldClose(window)) {
 
@@ -250,76 +239,53 @@ int main(void)
 
             glm::vec3 flatForward = glm::normalize(glm::vec3(cameraFront.x, 0.0f, cameraFront.z));      //kod orth nema perspektive pa je kretanje napred nazad drugacije, ide po XZ osama
 
-            // Kretanje
-            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-
-                //camPos += cameraSpeed * camForward;
-
-                if (perspective) {
-                    cameraPos += flatForward * cameraSpeed;
-                }
-                else {
-                    cameraPos += cameraSpeed * cameraFront;
-                }
-            }
-            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-
-                //camPos -= cameraSpeed * camForward;
-
-                if (perspective) {
-                    cameraPos -= flatForward * cameraSpeed;
-                }
-                else {
-                    cameraPos -= cameraSpeed * cameraFront;
-                }
-            }
-
-            /*if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
                 cameraPos += cameraSpeed * cameraFront;
-            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-                cameraPos -= cameraSpeed * cameraFront;*/
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) 
+                cameraPos -= cameraSpeed * cameraFront;
             if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
                 cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
             if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
                 cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-            if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+            if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
                 yaw += rotSpeed;
-            if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+
+                cameraFront.x = cos(glm::radians(yaw));
+                cameraFront.z = sin(glm::radians(yaw));
+            }
+            if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
                 yaw -= rotSpeed;
 
-            cameraFront.x = cos(glm::radians(yaw)) * cos(camPitch);
-            cameraFront.y = sin(camPitch);
-            cameraFront.z = sin(glm::radians(yaw)) * cos(camPitch);
-            cameraFront = glm::normalize(cameraFront);
-
-            glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-            glUniformMatrix4fv(uV, 1, GL_FALSE, glm::value_ptr(view));
-
-            //if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) { rotateFigures = !rotateFigures; }
-            glfwSetKeyCallback(window, key_space_callback);
-            if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) { perspective = true; glUniformMatrix4fv(uP, 1, GL_FALSE, glm::value_ptr(projP)); camPitch = glm::radians(0.0f); }
-            if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
-                perspective = false; glUniformMatrix4fv(uP, 1, GL_FALSE, glm::value_ptr(projO)); camPitch = glm::radians(-30.0f);
+                cameraFront.x = cos(glm::radians(yaw));
+                cameraFront.z = sin(glm::radians(yaw));
             }
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Osvjezavamo i Z bafer i bafer boje
+            glm::vec3 camPosFront;
+            if (perspective) 
+                camPosFront = glm::vec3(cameraFront.x + cameraPos.x, cameraFront.y + cameraPos.y, cameraPos.z + cameraFront.z);
+            else
+                camPosFront = glm::vec3(cameraFront.x + cameraPos.x, cameraFront.y + cameraPos.y, cameraPos.z + cameraFront.z);
 
+            glm::mat4 view = glm::lookAt(cameraPos, camPosFront, cameraUp);
+            glUniformMatrix4fv(uV, 1, GL_FALSE, glm::value_ptr(view));
+
+            glfwSetKeyCallback(window, key_space_callback);
+            if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) { perspective = true; glUniformMatrix4fv(uP, 1, GL_FALSE, glm::value_ptr(projP)); }
+            if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
+                perspective = false; glUniformMatrix4fv(uP, 1, GL_FALSE, glm::value_ptr(projO)); 
+            }
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             glm::mat4 groundModel = glm::mat4(1.0f);
-            //groundModel = glm::scale(groundModel, glm::vec3(5.0f, 1.0f, 15.0f));
             glUniformMatrix4fv(uM, 1, GL_FALSE, glm::value_ptr(groundModel));
 
             glBindVertexArray(groundVAO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-            /* glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOc);
-             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOp);*/
-             //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(pyramidIndices), pyramidIndices, GL_STATIC_DRAW
-
             float cubeHeight = 1.0f;     
             float pyramidHeight = 1.0f;  
             glBindVertexArray(VAO);
-
 
             for (int i = 0; i < 4; i++)
             {
