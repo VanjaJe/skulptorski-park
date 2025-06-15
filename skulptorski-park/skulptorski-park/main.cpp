@@ -1,4 +1,3 @@
-
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <iostream>
@@ -67,7 +66,7 @@ int main(void)
     glUseProgram(unifiedShader);
 
     float nameVertices[] = {
-        // x, y,     tex coords
+        // x, y,     
         0.0f,  0.0f,   0.0f, 0.0f,
         200.0f, 0.0f,   1.0f, 0.0f,
         200.0f, 50.0f,  1.0f, 1.0f,
@@ -128,13 +127,10 @@ int main(void)
         1,2,6,  6,5,1  // Right
     };
 
-    // Pyramid indices (4 triangular sides + 2 for base = 6 triangles = 18 indices)
-    // Base uses vertices 4,5,6,7 (the back face of the cube from 'vertices' array,
-    // which effectively acts as the bottom of the pyramid on top of the cube)
-    // Apex is vertex 8
+
     unsigned int pyramidIndices[] = {
         // Sides
-        8,5,4, // Note: Order matters for culling. Assuming counter-clockwise from outside.
+        8,5,4, 
         8,6,5,
         8,7,6,
         8,4,7,
@@ -167,10 +163,8 @@ int main(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, groundEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(groundIndices), groundIndices, GL_STATIC_DRAW);
 
-    // Position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // Color attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
@@ -185,15 +179,12 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Load cube indices into EBOc once
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOc);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
 
-    // Load pyramid indices into EBOp once
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOp);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(pyramidIndices), pyramidIndices, GL_STATIC_DRAW);
 
-    // Vertex attribs for VAO (applies to both cube and pyramid as they share VBO)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -237,8 +228,6 @@ int main(void)
 
             glUseProgram(unifiedShader);
 
-            glm::vec3 flatForward = glm::normalize(glm::vec3(cameraFront.x, 0.0f, cameraFront.z));      //kod orth nema perspektive pa je kretanje napred nazad drugacije, ide po XZ osama
-
             if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
                 cameraPos += cameraSpeed * cameraFront;
             if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) 
@@ -274,6 +263,8 @@ int main(void)
             if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS) {
                 perspective = false; glUniformMatrix4fv(uP, 1, GL_FALSE, glm::value_ptr(projO)); 
             }
+            if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+                glfwSetWindowShouldClose(window, GL_TRUE);
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -306,7 +297,7 @@ int main(void)
                 // Crtanje piramide na vrhu kocke
                 glm::mat4 modelPyramid = glm::translate(model, glm::vec3(0.0f, cubeHeight, 0.0f));
                 glUniformMatrix4fv(uM, 1, GL_FALSE, glm::value_ptr(modelPyramid));
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOp); // Bind pyramid EBO
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOp); 
                 glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
             }
 
